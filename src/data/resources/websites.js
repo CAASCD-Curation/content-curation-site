@@ -954,5 +954,18 @@ export const resourceWebsites = [
     tags: ['档案', '视觉研究', '档案网站', '数据可视化'],
     summary: "Are.na 上持续更新的公开研究频道，收集数据驱动的数字档案与可视化案例，探索这些材料如何以复数形式被出版与传播。",
   }),
+  website({
+    id: 'web-history-of-philosophy',
+    websiteCategory: 'case',
+    featured: false,
+    featuredOrder: 78,
+    title: 'History of Philosophy',
+    source: 'Deniz Cem Önduygu · 个人研究与可视化项目',
+    url: 'https://www.denizcemonduygu.com/philo/browse/',
+    previewImage: '/assets/resources/cases/history-of-philosophy.webp',
+    previewAlt: 'History of Philosophy 的句子时间线，绿色表示同意关系，红色表示反对关系',
+    tags: ['知识可视化', '交互图谱', '哲学史', '人文数据'],
+    summary: '由 Deniz Cem Önduygu 持续维护的交互式哲学史图谱，将带有出处、时期与主题标签的观点句子，以时间线和“同意／反对”关系组织为可缩放、筛选与比较的研究界面。',
+  }),
   ...contemporaryArtWebsites,
 ]
