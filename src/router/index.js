@@ -115,6 +115,12 @@ const routes = [
     meta: { title: '学生作品 · 内容与策展 2026' },
   },
   {
+    path: '/works/2026/:id',
+    name: 'StudentProjectViewer',
+    component: () => import('../views/works/StudentProjectViewer.vue'),
+    meta: { title: '学生项目 · 内容与策展 2026' },
+  },
+  {
     path: '/manage',
     name: 'Admin',
     component: () => import('../views/manage/Dashboard.vue'),
@@ -125,6 +131,12 @@ const routes = [
     name: 'ManageResources',
     component: () => import('../views/manage/Resources.vue'),
     meta: { title: '资源管理 · 内容与策展 2026' },
+  },
+  {
+    path: '/manage/projects',
+    name: 'ManageProjects',
+    component: () => import('../views/manage/Projects.vue'),
+    meta: { title: '成果管理 · 内容与策展 2026' },
   },
   {
     path: '/manage/media',

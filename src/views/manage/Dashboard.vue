@@ -27,6 +27,7 @@
           <div class="admin-toolbar">
             <span>已登录教师管理</span>
             <div>
+              <router-link class="admin-toolbar-link" to="/manage/projects">成果管理 →</router-link>
               <router-link class="admin-toolbar-link" to="/manage/resources">资源管理 →</router-link>
               <router-link class="admin-toolbar-link" to="/manage/media">媒体库 →</router-link>
               <button type="button" @click="refreshData">刷新数据</button>

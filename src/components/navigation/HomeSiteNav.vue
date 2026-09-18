@@ -25,7 +25,7 @@
     </router-link>
     <router-link
       to="/works"
-      exact-active-class="is-current"
+      :class="{ 'is-current': isWorksRoute }"
       @mouseenter="handlePrefetch('Works')"
       @touchstart.passive="handlePrefetch('Works')"
     >
@@ -43,6 +43,7 @@ import { prefetchRoute } from '../../utils/prefetch.js'
 
 const route = useRoute()
 const isResourceRoute = computed(() => route.path === '/resources' || route.path.startsWith('/resources/'))
+const isWorksRoute = computed(() => route.path === '/works' || route.path.startsWith('/works/'))
 
 const handlePrefetch = (name) => {
   prefetchRoute(name)

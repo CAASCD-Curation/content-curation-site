@@ -132,6 +132,17 @@ export async function requireAdmin(request, env) {
   return { session }
 }
 
+export async function getOptionalAdmin(request, env) {
+  if (!env.DB) return null
+  const token = getCookie(request, SESSION_COOKIE)
+  if (!token) return null
+  const tokenHash = await digestHex(token)
+  const session = await env.DB.prepare(
+    `SELECT id FROM sessions WHERE token_hash = ? AND kind = 'admin' AND expires_at > datetime('now')`,
+  ).bind(tokenHash).first()
+  return session || null
+}
+
 export async function requireStudent(request, env, { allowPasswordChange = true } = {}) {
   if (!env.DB) return { response: error('D1 数据库尚未绑定', 503) }
   const token = getCookie(request, STUDENT_SESSION_COOKIE)
