@@ -9,6 +9,7 @@ import {
   applyDisplayStyleToRoot,
   applyArcticEdgeVisibility,
   createArcticEdges,
+  createNavigationMaterial,
   configureNavigationNode,
   setNavigationAppearance,
 } from '../../../utils/spatial-model/materials.js'
@@ -36,8 +37,11 @@ export function useSpatialModelAssets({ getTHREE, getGLTFLoader, getMergeGeometr
   const architecturalMaterials = new Map()
   const arcticMaterials = new Map()
   const arcticEdgeMaterialRef = { current: null }
+  const highlightedLayerMeshes = new Map()
+  const layerHighlightMaterialRef = { current: null }
 
   let assetSyncKey = ''
+  let highlightedLayerKey = ''
 
   function registerAssetNodes(THREE, assetScene) {
     assetScene.updateMatrixWorld(true)
@@ -133,6 +137,60 @@ export function useSpatialModelAssets({ getTHREE, getGLTFLoader, getMergeGeometr
     if (node) node.visible = visible
   }
 
+  function clearLayerHighlights() {
+    highlightedLayerMeshes.forEach((highlightMesh, sourceMesh) => {
+      sourceMesh.remove(highlightMesh)
+    })
+    highlightedLayerMeshes.clear()
+    highlightedLayerKey = ''
+  }
+
+  function getLayerHighlightMaterial(THREE) {
+    if (!layerHighlightMaterialRef.current) {
+      layerHighlightMaterialRef.current = createNavigationMaterial(THREE, { active: true })
+    }
+    return layerHighlightMaterialRef.current
+  }
+
+  function setLayerHighlights(layerIds = []) {
+    const ids = [...new Set(layerIds)].filter((layerId) => debugLayerNodes.has(layerId))
+    const nextKey = ids.slice().sort().join('|')
+    if (nextKey === highlightedLayerKey) return
+
+    clearLayerHighlights()
+    if (!nextKey) return
+
+    const THREE = getTHREE()
+    if (!THREE) return
+
+    const highlightedMeshes = new Set()
+    const highlightMaterial = getLayerHighlightMaterial(THREE)
+    ids.forEach((layerId) => {
+      const layerNodes = debugLayerNodes.get(layerId) || []
+      layerNodes.forEach((layerNode) => {
+        layerNode.traverse((node) => {
+          if (
+            !node.isMesh
+            || highlightedMeshes.has(node)
+            || node.userData?.isArcticEdge
+            || node.userData?.isLayerHighlight
+            || !node.geometry
+          ) return
+
+          const highlightMesh = new THREE.Mesh(node.geometry, highlightMaterial)
+          highlightMesh.name = `${node.name || 'layer'}-navigation-highlight`
+          highlightMesh.userData.isLayerHighlight = true
+          highlightMesh.renderOrder = 6
+          highlightMesh.frustumCulled = node.frustumCulled
+          node.add(highlightMesh)
+          highlightedLayerMeshes.set(node, highlightMesh)
+          highlightedMeshes.add(node)
+        })
+      })
+    })
+    highlightedLayerKey = nextKey
+  }
+
   function applyDisplayStyle() {
     const THREE = getTHREE()
     if (!THREE) return
@@ -181,6 +239,7 @@ export function useSpatialModelAssets({ getTHREE, getGLTFLoader, getMergeGeometr
       const layer = debugDefinitionsMap.get(layerId)
       if (layer) applyDebugLayerOverride(layer, true)
     })
+    setLayerHighlights(mode === 'overview' ? associatedLayerIds : [])
     setNavigationAppearance(roomNodes, activeRoomId)
   }
 

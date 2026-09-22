@@ -532,6 +532,14 @@ function setArcticMode(enabled) {
   applyDisplayStyle()
   const THREE = getTHREE()
   if (THREE && model) {
+    const currentRoomId = effectiveActiveRoomId.value
+    applyVisibilityForMode(
+      model,
+      currentRoomId ? internal3DMode.value : 'overview',
+      currentRoomId,
+      DEBUG_LAYER_BY_ID,
+      selectedRoom.value?.modelLayerIds,
+    )
     updateSceneMetrics(model)
   }
   requestShadowUpdate()
@@ -700,7 +708,10 @@ function syncSceneState() {
     ? calculateSectionCamera(THREE, currentRoomId, roomNodes, roomBounds, getModelSize(), getModelBounds(), getModelCenter())
     : calculateOverviewCamera(THREE, getModelCenter(), getModelSize(), getModelBounds())
 
-  transitionManager?.animateOrtho({
+  const transition = mode === 'overview'
+    ? transitionManager?.setOrthoView
+    : transitionManager?.animateOrtho
+  transition?.({
     nextPosition: next.position,
     nextTarget: next.center,
     frameWidth: next.frameWidth,

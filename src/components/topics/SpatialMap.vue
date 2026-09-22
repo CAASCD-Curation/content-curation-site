@@ -88,16 +88,16 @@
             :data-room-id="stairRoom.id"
             role="button"
             tabindex="0"
-            aria-label="楼梯间热区，点击查看，双击进入三维场景"
+            aria-label="楼梯间热区，点击进入三维场景"
             :aria-pressed="isStairHotspotSelected"
             @mouseenter="stairHotspotHovered = true"
             @mouseleave="stairHotspotHovered = false"
             @focus="stairHotspotHovered = true"
             @blur="stairHotspotHovered = false"
-            @click.stop="selectStairHotspot()"
+            @click.stop="selectStairHotspot(true)"
             @dblclick.stop="selectStairHotspot(true)"
-            @keydown.enter.prevent="selectStairHotspot()"
-            @keydown.space.prevent="selectStairHotspot()"
+            @keydown.enter.prevent="selectStairHotspot(true)"
+            @keydown.space.prevent="selectStairHotspot(true)"
           >
             <title>楼梯间热区</title>
             <image

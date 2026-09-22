@@ -117,6 +117,18 @@ export function createCameraTransitionManager({
     if (orthoCamera && renderer) updateOrthoFrustum(orthoCamera, renderer, orthoFrameSize)
   }
 
+  function setOrthoView({ nextPosition, nextTarget, frameWidth, frameHeight, renderer }) {
+    const orthoCamera = getOrthoCamera()
+    const controls = getControls()
+    if (!orthoCamera || !controls) return
+    stopCameraAnimation()
+    setOrthoFrame(frameWidth, frameHeight, renderer)
+    orthoCamera.position.copy(nextPosition)
+    controls.target.copy(nextTarget)
+    controls.update()
+    onRequestRender?.()
+  }
+
   function animateOrtho({ nextPosition, nextTarget, frameWidth, frameHeight, renderer }) {
     const orthoCamera = getOrthoCamera()
     const controls = getControls()
@@ -177,6 +189,7 @@ export function createCameraTransitionManager({
   return {
     stopCameraAnimation,
     setOrthoFrame,
+    setOrthoView,
     animateOrtho,
     animatePerspective,
     getOrthoFrameSize: () => orthoFrameSize,

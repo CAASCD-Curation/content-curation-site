@@ -98,27 +98,29 @@ export function isNavigationMesh(node) {
   return Boolean(node.userData?.isWebNavigation)
 }
 
+export function createNavigationMaterial(THREE, { active = false } = {}) {
+  const material = new THREE.MeshBasicMaterial({
+    color: active ? 0xb4825f : 0xb78862,
+    transparent: true,
+    opacity: active ? 0.3 : 0.035,
+    depthWrite: false,
+    depthTest: false,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  })
+  material.userData.navBaseOpacity = 0.035
+  material.userData.navActiveOpacity = 0.3
+  return material
+}
+
 export function configureNavigationNode(THREE, node, roomMeshes) {
   node.traverse((child) => {
     if (!child.isMesh) return
     child.userData.isWebNavigation = true
     child.userData.navigationRoom = node.name
-    const createNavigationMaterial = () => {
-      const material = new THREE.MeshBasicMaterial({
-        color: 0xb78862,
-        transparent: true,
-        opacity: 0.035,
-        depthWrite: false,
-        depthTest: false,
-        side: THREE.DoubleSide,
-      })
-      material.userData.navBaseOpacity = 0.035
-      material.userData.navActiveOpacity = 0.3
-      return material
-    }
     child.material = Array.isArray(child.material)
-      ? child.material.map(createNavigationMaterial)
-      : createNavigationMaterial()
+      ? child.material.map(() => createNavigationMaterial(THREE))
+      : createNavigationMaterial(THREE)
     child.renderOrder = 5
     roomMeshes.push(child)
   })
