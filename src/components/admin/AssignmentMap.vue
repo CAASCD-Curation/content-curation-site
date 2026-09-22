@@ -47,6 +47,14 @@
             @click="clearGroupTopicConnection(connection)"
             @keydown="handleConnectionKeydown($event, connection)"
           />
+          <path
+            v-for="connection in interactiveRoomConnections"
+            :key="`${connection.id}-hover`"
+            class="admin-topic-connection-hit-area"
+            :d="connection.path"
+            @pointerenter="activateConnection(connection.id)"
+            @pointerleave="deactivateConnection(connection.id)"
+          />
         </svg>
         <div class="admin-connection-column admin-connection-groups" aria-label="小组选词">
           <p class="admin-connection-label">小组选词</p>
@@ -139,6 +147,17 @@
                   />
                 </g>
               </svg>
+              <svg
+                v-else-if="room.modelLayerIds?.length"
+                class="admin-room-shape-icon"
+                viewBox="0 0 48 30"
+                aria-hidden="true"
+              >
+                <path
+                  class="admin-room-shape-icon-path"
+                  d="M3 25h9v-5h9v-5h9v-5h9V5h6v20H3Z"
+                />
+              </svg>
               <strong>{{ room.name }}</strong>
             </span>
             <span>{{ roomTopics(room.id).length }} 词</span>
@@ -206,6 +225,7 @@ const roomGeometryProps = (geometry) => {
 const selectedTopic = computed(() => props.orderedTopics.find((topic) => topic.id === selectedTopicId.value) || null)
 const activeConnection = computed(() => topicConnections.value.find((connection) => connection.id === activeConnectionId.value) || null)
 const interactiveGroupConnections = computed(() => topicConnections.value.filter((connection) => connection.kind === 'group'))
+const interactiveRoomConnections = computed(() => topicConnections.value.filter((connection) => connection.kind === 'room'))
 const groupTopicLabel = (group) => group.topicLabel || props.orderedTopics.find((topic) => topic.id === group.topicId)?.label || '未命名词条'
 const isGroupConnectionActive = (groupId) => activeConnection.value?.groupId === groupId
 const isTopicConnectionActive = (topicId) => activeConnection.value?.topicId === topicId
@@ -392,7 +412,7 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
 }
 .admin-topic-connection-board {
   display: grid;
-  grid-template-columns: minmax(7rem, 0.9fr) minmax(2rem, 0.28fr) minmax(6rem, 0.9fr) minmax(2rem, 0.28fr) minmax(0, 1fr);
+  grid-template-columns: 11rem minmax(2rem, 1fr) 6rem minmax(2rem, 1fr) 16rem;
   position: relative;
   isolation: isolate;
   gap: 0;
@@ -440,13 +460,16 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
 .admin-connection-topics {
   grid-column: 3;
   gap: 0.4rem;
+  align-items: flex-start;
 }
 .admin-connection-groups {
   grid-column: 1;
   gap: 0.4rem;
+  align-items: flex-start;
 }
 .admin-connection-rooms {
   grid-column: 5;
+  align-items: flex-end;
   justify-content: space-between;
 }
 .admin-connection-label,
@@ -460,6 +483,11 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
   min-height: 1rem;
   margin-bottom: 0.35rem;
 }
+.admin-connection-topics > .admin-connection-label {
+  width: 6rem;
+  max-width: 100%;
+  text-align: center;
+}
 .admin-room-connection-heading {
   display: flex;
   align-items: start;
@@ -467,6 +495,7 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
   gap: 0.35rem;
   min-height: 1rem;
   margin-bottom: 0.35rem;
+  width: 16rem;
 }
 .admin-room-connection-heading .admin-connection-label {
   min-height: 1rem;
@@ -486,11 +515,11 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
 }
 .admin-group-node {
   display: grid;
-  grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.8rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.35rem;
-  width: 100%;
-  padding: 0.35rem 0.45rem;
+  gap: 0.2rem;
+  width: min(100%, 11rem);
+  padding: 0.3rem 0.35rem;
   text-align: left;
   cursor: default;
 }
@@ -528,13 +557,13 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
   white-space: nowrap;
 }
 .admin-group-clear {
-  min-width: 3rem;
-  min-height: 2.5rem;
+  min-width: 2.45rem;
+  min-height: 2rem;
   border: 1px solid var(--home-rule);
   border-radius: 0;
   background: transparent;
   color: var(--home-muted);
-  padding: 0.25rem 0.35rem;
+  padding: 0.15rem 0.25rem;
   cursor: pointer;
   font: inherit;
   font-size: 0.65rem;
@@ -681,6 +710,7 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
   .admin-group-node {
     grid-template-columns: 1.7rem minmax(0, 1fr);
     gap: 0.25rem;
+    width: min(100%, 11rem);
     padding-inline: 0.3rem;
   }
   .admin-group-node strong {
@@ -698,6 +728,9 @@ onBeforeUnmount(() => topicMatcherResizeObserver?.disconnect())
     min-height: 2.5rem;
   }
   .admin-room-slot {
+    width: 100%;
+  }
+  .admin-room-connection-heading {
     width: 100%;
   }
   .admin-room-shape-icon {

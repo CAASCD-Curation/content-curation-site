@@ -1,4 +1,5 @@
 import { topicCatalog } from '../topics/catalog.js'
+import { SPATIAL_ROOM_LAYER_IDS } from '../spatial/modelConfig.js'
 
 const roomKeywords = topicCatalog.reduce((map, { label, roomId }) => {
   map[roomId] ||= []
@@ -15,7 +16,14 @@ export function getLocalCourseState() {
         number: String(index + 1).padStart(2, '0'),
         name: `空间 ${String(index + 1).padStart(2, '0')}`,
         keywords: [...(roomKeywords[id] || [])],
+        modelLayerIds: [...(SPATIAL_ROOM_LAYER_IDS[id] || [])],
       }
+    }).concat({
+      id: 'room13',
+      number: '13',
+      name: '楼梯间',
+      keywords: [...(roomKeywords.room13 || [])],
+      modelLayerIds: [...SPATIAL_ROOM_LAYER_IDS.room13],
     }),
     topics: topicCatalog.map(({ label, roomId, colorToken, sortOrder }, index) => ({
       id: index + 1,

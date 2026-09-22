@@ -30,6 +30,11 @@ export const MODEL_ASSETS = {
 
 export const MODEL_FILE_LABEL = '0828-site1.3 分层模型组'
 
+// 非房间热区的空间目录项通过模型图层建立关联。
+export const SPATIAL_ROOM_LAYER_IDS = {
+  room13: ['stair-inside', 'stair-midside', 'stair-outside'],
+}
+
 export const DEBUG_LAYER_GROUPS = [
   {
     id: 'group-arch',
@@ -168,6 +173,11 @@ export const IMMERSIVE_VIEW_PRESETS = {
   },
 }
 
+// 个别词条的三维浏览点不跟随其平面空间归属，直接复用模型中已标定的机位。
+export const IMMERSIVE_TOPIC_PRESET_ROOMS = {
+  楼梯间: 'room1',
+}
+
 export const DEFAULT_IMMERSIVE_FOV = 50
 export const MIN_IMMERSIVE_FOV = 35
 export const MAX_IMMERSIVE_FOV = 85
@@ -181,15 +191,16 @@ export function clampImmersiveFov(value) {
   return Math.min(Math.max(num, MIN_IMMERSIVE_FOV), MAX_IMMERSIVE_FOV)
 }
 
-export function presetForRoom(roomId) {
-  return IMMERSIVE_VIEW_PRESETS[roomId] || {
+export function presetForRoom(roomId, keyword = '') {
+  const presetRoomId = IMMERSIVE_TOPIC_PRESET_ROOMS[keyword] || roomId
+  return IMMERSIVE_VIEW_PRESETS[presetRoomId] || {
     offset: { x: 0, z: 0 },
     direction: [0, 0, -1],
   }
 }
 
-export function immersiveFovFor(roomId) {
-  return clampImmersiveFov(presetForRoom(roomId).fov)
+export function immersiveFovFor(roomId, keyword = '') {
+  return clampImmersiveFov(presetForRoom(roomId, keyword).fov)
 }
 
 export function roomIdFromNodeName(name) {

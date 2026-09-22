@@ -1,7 +1,7 @@
 <template>
   <figure class="screen-universe" aria-label="屏幕宇宙" @click="handleUniverseClick">
     <TopicBar
-      :keywords="keywords"
+      :keywords="topicKeywords"
       :active-keyword="activeTopic"
       :topic-colors="topicColors"
       @select-topic="selectTopic"
@@ -74,6 +74,7 @@ const props = defineProps({
   viewMode: { type: String, default: 'overview' },
   activeRoomId: { type: String, default: '' },
   activeKeyword: { type: String, default: '' },
+  visibleKeywords: { type: Array, default: null },
   modeNotice: { type: String, default: '' },
 })
 
@@ -106,6 +107,11 @@ const dragState = reactive({
 })
 
 const keywords = computed(() => [...new Set(props.rooms.flatMap((room) => room.keywords))])
+const topicKeywords = computed(() => {
+  if (!Array.isArray(props.visibleKeywords)) return keywords.value
+  const visible = new Set(props.visibleKeywords)
+  return keywords.value.filter((keyword) => visible.has(keyword))
+})
 const activeTopic = computed(() => props.activeKeyword)
 const stageStyle = { '--screen-universe-stage-aspect': SCREEN_UNIVERSE_STAGE_ASPECT }
 

@@ -14,6 +14,7 @@
         <RetrospectiveSection @open-work="openWork" />
         <TopicSection
           :rooms="rooms"
+          :visible-topic-labels="visibleTopicLabels"
           :topic-colors="topicColors"
           :loading="loading"
           :state-error="error"
@@ -58,7 +59,13 @@ import WorkDetailModal from '../components/works/WorkDetailModal.vue'
 
 const sectionIds = homeNavItems.map((item) => item.id)
 const { activeSection, navigateTo } = useHomeSections(sectionIds)
-const { rooms, topicColors, loading, error, refresh } = useCourseState()
+const { rooms, groups, topicColors, loading, error, refresh } = useCourseState()
+
+const visibleTopicLabels = computed(() => (
+  groups.value
+    .map((group) => group.topicLabel)
+    .filter(Boolean)
+))
 
 const activeWorkId = ref(null)
 const openWork = (id) => { activeWorkId.value = id }

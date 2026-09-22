@@ -160,7 +160,7 @@ export function useSpatialModelAssets({ getTHREE, getGLTFLoader, getMergeGeometr
     })
   }
 
-  function applyVisibilityForMode(model, mode, activeRoomId, debugDefinitionsMap) {
+  function applyVisibilityForMode(model, mode, activeRoomId, debugDefinitionsMap, associatedLayerIds = []) {
     if (!model) return
     const exteriorNames = ['facede-front', 'facade-back', 'wall-outside', 'roof', 'stair-outside']
     const sectionHiddenNames = ['facade-back', 'wall-outside', 'roof', 'stair-outside']
@@ -177,6 +177,10 @@ export function useSpatialModelAssets({ getTHREE, getGLTFLoader, getMergeGeometr
       setNodeVisible('WEB_NAV', false)
     }
     applyDebugLayerOverrides(debugDefinitionsMap)
+    associatedLayerIds.forEach((layerId) => {
+      const layer = debugDefinitionsMap.get(layerId)
+      if (layer) applyDebugLayerOverride(layer, true)
+    })
     setNavigationAppearance(roomNodes, activeRoomId)
   }
 

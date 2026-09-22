@@ -22,7 +22,7 @@
       >
         <title id="spatial-map-title">空间原型图</title>
         <desc id="spatial-map-description">
-          一张横向空间平面图，包含十二个可选择的空间热区。
+          一张横向空间平面图，包含十二个楼层空间热区和一组可选择的楼梯热区；楼梯间可进入三维模型查看。
         </desc>
         <g class="spatial-map-world">
           <image
@@ -37,13 +37,14 @@
           />
 
           <g
-            v-for="room in rooms"
+            v-for="room in mappedRooms"
             :key="room.id"
             class="spatial-room"
             :class="{
               'is-active': activeRoomId === room.id,
               'is-selected': activeRoomId === room.id,
               'is-dimmed': Boolean(activeRoomId && activeRoomId !== room.id),
+              'is-stair-parent-hidden': isStairRoomSelected(room),
             }"
             :data-room-id="room.id"
             :style="{ '--spatial-room-color': roomColor(room) }"
@@ -78,6 +79,38 @@
                 v-bind="getShapeProps(getRoomGeometry(room.id))"
               />
             </g>
+          </g>
+
+          <g
+            v-if="stairRoom"
+            class="spatial-stair-hotspot"
+            :class="{ 'is-active': isStairHotspotSelected, 'is-hovered': stairHotspotHovered }"
+            :data-room-id="stairRoom.id"
+            role="button"
+            tabindex="0"
+            aria-label="楼梯间热区，点击查看，双击进入三维场景"
+            :aria-pressed="isStairHotspotSelected"
+            @mouseenter="stairHotspotHovered = true"
+            @mouseleave="stairHotspotHovered = false"
+            @focus="stairHotspotHovered = true"
+            @blur="stairHotspotHovered = false"
+            @click.stop="selectStairHotspot()"
+            @dblclick.stop="selectStairHotspot(true)"
+            @keydown.enter.prevent="selectStairHotspot()"
+            @keydown.space.prevent="selectStairHotspot()"
+          >
+            <title>楼梯间热区</title>
+            <image
+              class="spatial-stair-hotspot-image"
+              :href="stairsHotspotUrl"
+              x="0"
+              y="0"
+              width="2900"
+              height="480"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            />
+            <path class="spatial-stair-hotspot-hit" :d="STAIRS_HOTSPOT_PATH" />
           </g>
         </g>
       </svg>
@@ -122,6 +155,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import mapUrl from '../../assets/spatial-map/map.svg'
+import stairsHotspotUrl from '../../assets/spatial-map/stairs-hotspot.svg'
 import { topicColors } from '../../data/topics/catalog.js'
 import { spatialRoomGeometries } from '../../data/spatial/roomGeometry.js'
 
@@ -169,6 +203,7 @@ const MAP_HEIGHT = 480
 // ratio lets the selected space fill the display without distorting the map.
 const EMBEDDED_MAP_ASPECT = 2.24
 const WIDE_FOCUS_ROOM_IDS = new Set(['room1', 'room2'])
+const STAIRS_HOTSPOT_PATH = 'M224.53,442.2 H272.27 L599.58,360.88 H635.71 L743.54,323.61 H779.55 L886.89,268.39 H976.29 L1034.72,296.86 H1065.35 L1181.88,360.76 L1236.43,360.2 L1334.81,322.67 H1374.5 L1481.23,268.26 H1520.25 L1640.59,214.1 H1668.33 L1751.79,176.79 H1791.23 L1908.41,236.78 L1940.54,236.33 L1996.11,267.47 H2035.81 V257.61 H2001.12 L1944.9,225.62 H1914.36 L1799.65,166.76 H1743.42 L1663.93,201.67 L1637.06,201.71 L1511.06,257.38 H1475.67 L1368.71,310.56 H1331.87 L1233.26,348.01 H1184.99 L1071.27,284.96 H1040.98 L983,257.61 H880.19 L773.04,311.94 L737.83,312.24 L632.39,348.01 H590.19 Z M1874.62,442.2 H1904.46 L1974.98,403.02 H2002.87 L2087.26,361.06 H2125.56 L2229.2,330.3 H2265.31 L2378.98,269.66 H2425.21 L2532.73,307.12 H2564.99 L2671.45,361.21 H2724.15 V348 H2677.64 L2569.33,294.08 H2536.32 L2427.54,257.07 H2373.87 L2261.94,316.82 H2223.32 L2119.97,348 H2080.46 L1996.6,389.87 H1967.02 Z'
 const roomFocusBounds = {
   room1: { x: 145, y: 105, width: 1130, height: 335 },
   room2: { x: 744, y: 260, width: 1332, height: 180 },
@@ -187,6 +222,18 @@ const roomFocusBounds = {
 const keywordList = computed(() => [
   ...new Set(props.rooms.flatMap((room) => room.keywords)),
 ])
+
+const mappedRooms = computed(() => props.rooms.filter((room) => getRoomGeometry(room.id)))
+const stairRoom = computed(() => props.rooms.find((room) => room.keywords.includes('楼梯间')) || null)
+const stairHotspotHovered = ref(false)
+const isStairHotspotSelected = computed(() => Boolean(
+  stairRoom.value
+  && props.activeRoomId === stairRoom.value.id
+  && props.activeKeyword === '楼梯间',
+))
+const isStairRoomSelected = (room) => Boolean(
+  isStairHotspotSelected.value && room.id === stairRoom.value?.id,
+)
 
 const activeRoomId = computed(
   () => props.activeRoomId || focusedRoomId.value || hoveredRoomId.value,
@@ -249,6 +296,16 @@ const roomLabel = (room) => {
 
 const clearSelection = () => {
   emit('clear-space')
+}
+
+const selectStairHotspot = (force3D = false) => {
+  if (!stairRoom.value) return
+  emit('activate-space', {
+    roomId: stairRoom.value.id,
+    keyword: '楼梯间',
+    force3D,
+    source: force3D ? 'stair-hotspot-dblclick' : 'stair-hotspot',
+  })
 }
 
 const handleMapClick = (event) => {
@@ -456,6 +513,42 @@ const selectKeyword = (keyword) => {
   stroke-width: 3;
 }
 
+.spatial-room.is-stair-parent-hidden .spatial-room-shape {
+  opacity: 0;
+  fill-opacity: 0;
+}
+
+.spatial-stair-hotspot {
+  outline: none;
+}
+
+.spatial-stair-hotspot-image {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.spatial-stair-hotspot.is-hovered .spatial-stair-hotspot-image,
+.spatial-stair-hotspot.is-active .spatial-stair-hotspot-image {
+  opacity: 0.72;
+}
+
+.spatial-stair-hotspot-hit {
+  fill: var(--home-orange);
+  fill-opacity: 0;
+  pointer-events: fill;
+  transition: fill-opacity 180ms ease;
+}
+
+.spatial-stair-hotspot.is-hovered .spatial-stair-hotspot-hit,
+.spatial-stair-hotspot.is-active .spatial-stair-hotspot-hit {
+  fill-opacity: 0.12;
+}
+
+.spatial-stair-hotspot:focus-visible .spatial-stair-hotspot-hit {
+  fill-opacity: 0.18;
+}
+
 @media (max-width: 1023px) {
   .spatial-map-canvas {
     width: 100%;
@@ -485,7 +578,9 @@ const selectKeyword = (keyword) => {
 
 @media (prefers-reduced-motion: reduce) {
   .spatial-keyword,
-  .spatial-room-shape {
+  .spatial-room-shape,
+  .spatial-stair-hotspot-image,
+  .spatial-stair-hotspot-hit {
     transition: none;
   }
 }

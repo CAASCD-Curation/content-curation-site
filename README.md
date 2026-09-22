@@ -144,7 +144,7 @@ erDiagram
 
 | 表名 | 功能与职责说明 | 关键字段 / 约束 |
 |---|---|---|
-| **`rooms`** | 12 个空间原型节点（19号楼 1F–3F） | `id` (room1~12), `number`, `name`, `sort_order` |
+| **`rooms`** | 12 个楼层空间原型节点 + 1 个模型图层空间节点 | `id` (room1~13), `number`, `name`, `sort_order`, `model_layer_ids_json` |
 | **`topics`** | 课程选题词库（系统预设 + 管理员自定义） | `id`, `label`, `room_id`, `color_token`, `sort_order`, `source` |
 | **`course_groups`** | 学生课题小组（A1~A8, B1~B8 共 16 组） | `id` (group-a1~b8), `code`, `sort_order` |
 | **`topic_assignments`** | 小组与选题的 1:1 独占选词绑定 | `group_id` (PK), `topic_id` (Unique, FK) |
@@ -171,8 +171,9 @@ erDiagram
 | **2F** | `room8` | 空间 08 | **晒场** | `var(--home-spot-08)` | 9 |
 | **2F** | `room9` | 空间 09 | **阳台** | `var(--home-spot-09)` | 10 |
 | **3F** | `room10` | 空间 10 | **宴席** | `var(--home-spot-10)` | 11 |
-| **3F** | `room11` | 空间 11 | **谷仓**<br>**楼梯间** | `var(--home-spot-11)`<br>`var(--home-spot-12)` | 12<br>13 |
+| **3F** | `room11` | 空间 11 | **谷仓** | `var(--home-spot-11)` | 12 |
 | **3F** | `room12` | 空间 12 | **监控室** | `var(--home-spot-13)` | 14 |
+| **模型图层** | `room13` | 楼梯间 | **楼梯间**<br>关联 `stair-inside`、`stair-midside`、`stair-outside` | `var(--home-spot-12)` | 13 |
 
 ---
 

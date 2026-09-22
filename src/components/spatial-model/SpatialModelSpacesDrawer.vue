@@ -54,6 +54,9 @@
             <small v-if="room.keywords?.length" class="space-item-keywords">
               {{ room.keywords.join(' · ') }}
             </small>
+            <small v-if="room.modelLayerIds?.length" class="space-item-layers">
+              图层：{{ roomLayerLabels(room).join(' · ') }}
+            </small>
           </div>
           <span v-if="room.id === activeRoomId" class="space-item-active-marker" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
@@ -67,6 +70,12 @@
 </template>
 
 <script setup>
+import { DEBUG_LAYER_BY_ID } from '../../data/spatial/modelConfig.js'
+
+const roomLayerLabels = (room) => (room.modelLayerIds || []).map((id) => (
+  DEBUG_LAYER_BY_ID.get(id)?.label || id
+))
+
 defineProps({
   rooms: {
     type: Array,
@@ -264,6 +273,12 @@ defineEmits(['select-room', 'request-overview', 'close'])
   font-size: 0.62rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.space-item-layers {
+  color: var(--home-muted, #747474);
+  font-size: 0.62rem;
+  line-height: 1.35;
 }
 
 .space-item-active-marker {

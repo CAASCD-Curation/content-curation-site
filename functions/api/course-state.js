@@ -6,7 +6,7 @@ export async function onRequestGet(context) {
 
   try {
     const [roomsResult, topicsResult, groupsResult] = await env.DB.batch([
-      env.DB.prepare('SELECT id, number, name, sort_order FROM rooms ORDER BY sort_order, id'),
+      env.DB.prepare('SELECT id, number, name, sort_order, model_layer_ids_json AS modelLayerIds FROM rooms ORDER BY sort_order, id'),
       env.DB.prepare(`
         SELECT id, label, source, room_id AS roomId, color_token AS colorToken, sort_order AS sortOrder
         FROM topics
@@ -28,6 +28,7 @@ export async function onRequestGet(context) {
       number: room.number,
       name: room.name,
       keywords: topics.filter((topic) => topic.roomId === room.id).map((topic) => topic.label),
+      modelLayerIds: parseModelLayerIds(room.modelLayerIds),
     }))
 
     return json({
@@ -39,5 +40,15 @@ export async function onRequestGet(context) {
   } catch (cause) {
     console.error('course-state failed', cause)
     return error('课程数据暂时无法读取', 503)
+  }
+}
+
+function parseModelLayerIds(value) {
+  if (!value) return []
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
   }
 }

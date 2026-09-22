@@ -33,6 +33,7 @@
         :view-mode="viewMode"
         :active-room-id="activeRoomId"
         :active-keyword="activeKeyword"
+        :visible-keywords="visibleTopicLabels"
         :topic-colors="topicColors"
         :image-library="topicImages"
         :text-library="topicTexts"
@@ -129,6 +130,7 @@ onBeforeUnmount(() => {
 
 defineProps({
   rooms: { type: Array, default: () => [] },
+  visibleTopicLabels: { type: Array, default: null },
   topicColors: { type: Object, default: () => ({}) },
   loading: { type: Boolean, default: false },
   stateError: { type: String, default: '' },

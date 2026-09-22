@@ -617,7 +617,13 @@ function onToggleDebugLayer({ layer, visible }) {
 function resetDebugLayerVisibility() {
   debugLayerVisibility.value = {}
   if (!model) return
-  applyVisibilityForMode(model, internal3DMode.value, effectiveActiveRoomId.value, DEBUG_LAYER_BY_ID)
+  applyVisibilityForMode(
+    model,
+    internal3DMode.value,
+    effectiveActiveRoomId.value,
+    DEBUG_LAYER_BY_ID,
+    selectedRoom.value?.modelLayerIds,
+  )
   updateCollisionMeshes(model)
   requestShadowUpdate()
   requestRender()
@@ -645,7 +651,13 @@ function syncSceneState() {
     calibrationOpen.value = false
     releasePointerLock()
   }
-  applyVisibilityForMode(model, mode, currentRoomId, DEBUG_LAYER_BY_ID)
+  applyVisibilityForMode(
+    model,
+    mode,
+    currentRoomId,
+    DEBUG_LAYER_BY_ID,
+    selectedRoom.value?.modelLayerIds,
+  )
   updateCollisionMeshes(model)
 
   const orthoCam = getOrthoCamera()
@@ -662,7 +674,14 @@ function syncSceneState() {
     setActiveCamera(perspectiveCam)
     if (controls) controls.enabled = false
     transitionManager?.stopCameraAnimation()
-    const next = calculateImmersiveCamera(THREE, currentRoomId, roomNodes, roomBounds, getModelBounds())
+    const next = calculateImmersiveCamera(
+      THREE,
+      currentRoomId,
+      roomNodes,
+      roomBounds,
+      getModelBounds(),
+      effectiveActiveKeyword.value,
+    )
     applyPerspectiveFov(next.fov)
     if (next.position && next.target && perspectiveCam) {
       perspectiveCam.position.set(next.position.x, next.position.y, next.position.z)

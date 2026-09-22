@@ -63,12 +63,12 @@ export function calculateSectionCamera(THREE, roomId, roomNodes, roomBounds, mod
   return { position, center, frameWidth, frameHeight }
 }
 
-export function calculateImmersiveCamera(THREE, roomId, roomNodes, roomBounds, modelBounds) {
+export function calculateImmersiveCamera(THREE, roomId, roomNodes, roomBounds, modelBounds, keyword = '') {
   const node = roomNodes.get(`r${roomId.replace('room', '')}`)
   const box = node ? roomBounds.get(node.name) || boxFor(THREE, node) : modelBounds
   const center = box.getCenter(new THREE.Vector3())
   const size = box.getSize(new THREE.Vector3())
-  const preset = presetForRoom(roomId)
+  const preset = presetForRoom(roomId, keyword)
   const position = Array.isArray(preset.position)
     ? new THREE.Vector3(...preset.position)
     : new THREE.Vector3(
@@ -79,7 +79,7 @@ export function calculateImmersiveCamera(THREE, roomId, roomNodes, roomBounds, m
   const target = Array.isArray(preset.target)
     ? new THREE.Vector3(...preset.target)
     : position.clone().add(new THREE.Vector3(...preset.direction))
-  return { position, target, fov: immersiveFovFor(roomId) }
+  return { position, target, fov: immersiveFovFor(roomId, keyword) }
 }
 
 export function updateOrthoFrustum(orthoCamera, renderer, orthoFrameSize) {

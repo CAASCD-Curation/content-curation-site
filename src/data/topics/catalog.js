@@ -16,7 +16,7 @@ export const topicCatalog = [
   { label: '阳台', roomId: 'room9', colorToken: 'var(--home-spot-09)', sortOrder: 10 },
   { label: '宴席', roomId: 'room10', colorToken: 'var(--home-spot-10)', sortOrder: 11 },
   { label: '谷仓', roomId: 'room11', colorToken: 'var(--home-spot-11)', sortOrder: 12 },
-  { label: '楼梯间', roomId: 'room11', colorToken: 'var(--home-spot-12)', sortOrder: 13 },
+  { label: '楼梯间', roomId: 'room13', colorToken: 'var(--home-spot-12)', sortOrder: 13 },
   { label: '监控室', roomId: 'room12', colorToken: 'var(--home-spot-13)', sortOrder: 14 },
 ]
 
